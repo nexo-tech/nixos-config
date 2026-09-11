@@ -1,0 +1,12 @@
+# Minimal Ghostty terminfo so remote ncurses/mosh see 256 colors.
+# mosh-server only treats colors==256 as xterm-256color; anything else
+# (including a missing xterm-ghostty entry) becomes 8-color TERM=xterm.
+xterm-ghostty|ghostty|Ghostty terminal emulator,
+	use=xterm-256color,
+	Tc,
+	RGB,
+	sitm=\E[3m,
+	ritm=\E[23m,
+	Smulx=\E[4:%p1%dm,
+	setrgbf=\E[38;2;%p1%d;%p2%d;%p3%dm,
+	setrgbb=\E[48;2;%p1%d;%p2%d;%p3%dm,

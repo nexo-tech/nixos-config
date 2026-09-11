@@ -88,6 +88,8 @@ in {
       set -ga terminal-overrides ",xterm*:Tc,tmux*:Tc,screen*:Tc,foot*:Tc,alacritty*:Tc,kitty*:Tc,wezterm*:Tc,ghostty*:Tc"
       set -ga terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[ q'
       set-environment -g COLORTERM truecolor
+      set-environment -g COLORFGBG "${theme.colorFgBg}"
+      set-environment -g CLITHEME "${theme.cliTheme}"
       set -g allow-passthrough on
       set -s set-clipboard off
 

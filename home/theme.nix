@@ -110,8 +110,18 @@ let
     if themeFamily == "opencode" then opencode_oc1.dark
     else (if themeMode == "dark" then catppuccin.macchiato else catppuccin.latte);
 
+  # OpenCode is dark-only. Used for COLORFGBG/CLITHEME so TUI apps can pick
+  # light vs dark without OSC 11, which mosh does not implement.
+  isDark = themeFamily == "opencode" || themeMode == "dark";
+
 in {
-  inherit themeMode themeFamily palette;
+  inherit themeMode themeFamily palette isDark;
+
+  # urxvt/xterm convention: "fg;bg" ANSI indices. Light terminals are 0;15,
+  # dark terminals are 15;0. Apps such as Codex, termenv, and vim fall back
+  # to this when they cannot query the real background color.
+  colorFgBg = if isDark then "15;0" else "0;15";
+  cliTheme = if isDark then "dark" else "light";
 
   ghosttyThemeName =
     if themeFamily == "opencode" then "OpenCode-OC1-Dark"

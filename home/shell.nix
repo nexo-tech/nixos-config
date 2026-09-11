@@ -109,6 +109,19 @@ in {
     shellOptions = [ ];
     historyControl = [ "ignoredups" "ignorespace" ];
     shellAliases = gitAliases // editorAliases;
+    bashrcExtra = ''
+      # mosh-server maps unknown/non-256 TERM (e.g. xterm-ghostty) to 8-color xterm.
+      mosh() {
+        case "''${TERM:-}" in
+          *ghostty*|*kitty*|*alacritty*|*wezterm*|*foot*|xterm-direct)
+            env TERM=xterm-256color command mosh "$@"
+            ;;
+          *)
+            command mosh "$@"
+            ;;
+        esac
+      }
+    '';
   };
 
   programs.zoxide = {
@@ -128,6 +141,8 @@ in {
       (lib.strings.intersperse "\n" ([
         "set -gx PATH /nix/var/nix/profiles/default/bin $HOME/.nix-profile/bin $PATH"
         "test -f /etc/snowbear-multipass; and set -gx SNOWBEAR_MULTIPASS 1"
+        # Force 24-bit color even when mosh rewrites TERM to xterm-256color.
+        "set -g fish_term24bit 1"
         (builtins.readFile ./configs/config.fish)
         fishTheme
         "set -g SHELL ${pkgs.fish}/bin/fish"
@@ -197,6 +212,16 @@ in {
         and echo -n (set_color ${p.red})"["$last_status"]"(set_color normal)
       '';
       fish_greeting = "";
+      # mosh-server maps unknown/non-256 TERM (e.g. xterm-ghostty) to 8-color xterm,
+      # which makes TUI palettes collapse to the bright VGA colors.
+      mosh = ''
+        switch "$TERM"
+            case '*ghostty*' '*kitty*' '*alacritty*' '*wezterm*' '*foot*' 'xterm-direct'
+                env TERM=xterm-256color command mosh $argv
+            case '*'
+                command mosh $argv
+        end
+      '';
     };
 
     plugins = map (n: {

@@ -3,6 +3,7 @@
 { config, lib, pkgs, ... }:
 
 let
+  theme = import ./theme.nix;
   isMultipassHome = builtins.getEnv "SNOWBEAR_HOME_MULTIPASS" == "1";
 in
 
@@ -27,7 +28,11 @@ in
     LC_CTYPE = "en_US.UTF-8";
     LC_ALL = "en_US.UTF-8";
     COLORTERM = "truecolor";
-    TERMINFO_DIRS = "${pkgs.ncurses}/share/terminfo:/usr/share/terminfo:/etc/terminfo:/lib/terminfo";
+    # mosh does not answer OSC 10/11, so TUIs otherwise assume a dark
+    # background and pick a high-contrast palette (too bright on Latte).
+    COLORFGBG = theme.colorFgBg;
+    CLITHEME = theme.cliTheme;
+    TERMINFO_DIRS = "$HOME/.terminfo:${pkgs.ncurses}/share/terminfo:/usr/share/terminfo:/etc/terminfo:/lib/terminfo";
     EDITOR = "nvim";
     PAGER = "less -FirSwX";
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";
